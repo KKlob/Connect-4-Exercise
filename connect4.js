@@ -17,9 +17,7 @@ const board = []; // array of rows, each row is array of cells  (board[y][x])
 
 function makeBoard() {
   // TODO: set "board" to empty HEIGHT x WIDTH matrix array
-  // set boardRow to empty array
-  // while board is not complete, create 7x null items in the boardRow array, then push it onto board.
-  // Will run 6x times to give board 6 elements - each element is a 7 element array.
+  // while the board array is not complete, create a new array with length of WIDTH and push that array to board
   while (board.length < HEIGHT) {
     board.push(Array.from({ length: WIDTH }));
   }
@@ -71,35 +69,41 @@ function makeHtmlBoard() {
 
 function findSpotForCol(x) {
   // TODO: write the real version of this, rather than always returning 0
+  // Run through each array element in board, starting with the last element.
+  // check if the corresponding x cell has a playervalue, if not it will return that array element index.
   for (let i = board.length - 1; i >= 0; i--) {
+    // if the contents of board[i][x] are empty, return i
     if (!(board.at(i).at(x))) {
-      console.log(`lowest cell is ${i}-${x}`);
       return i;
     }
   }
+  // if the entire collum is full, return null
   return null;
 }
 
 //Custom Function to switch Player
 function switchPlayer() {
+  // swap currPlayer's value depending on if it's 2
   currPlayer = currPlayer < 2 ? 2 : 1;
 }
 
 //Custom Function to check if entire board is filled
+// goes through every array element in board and
+// for every element in each of those, if all of them are assigned a currPlayer value (1 or 2)
+// trigger the endGame function with the appropreate message.
 function isBoardFull() {
+  // filled is a boolean that will be false until every single element in every array of board is a 1 or 2
   let filled = board.every((row) => {
     return row.every((cell) => cell === 1 || cell === 2 ? true : false);
   });
-  console.log(filled);
+  // once filled becomes true, the game ends in a tie
   if (filled) endGame('Game ends in a Tie!');
 }
 
 //Custom Function to place piece in board array
 // fill correct cell with currPlayer value
 function placeInBoard(y, x) {
-  console.log(`cell ${y}-${x} is ${board[y][x]}`);
   board[y][x] = currPlayer;
-  console.log(`cell ${y}-${x} is now ${board[y][x]}`);
 }
 
 /** placeInTable: update DOM to place piece into HTML table of board */
@@ -107,6 +111,8 @@ function placeInBoard(y, x) {
 function placeInTable(y, x) {
   // TODO: make a div and insert into correct table cell\
   // create Div element + assign class piece p(1/2)
+  // Grab the correct TD element with ID of "y-x"
+  // append the div element to that TD
   let piece = document.createElement('div');
   piece.setAttribute("class", `piece p${currPlayer}`);
   let place = document.getElementById(`${y}-${x}`);
@@ -128,13 +134,13 @@ function handleClick(evt) {
 
   // get next spot in column (if none, ignore click)
   let y = findSpotForCol(x);
-  console.log(findSpotForCol(x));
-  console.log(`y = ${y}`);
+  // if y is null, the column a player chose is full. Throw out this click event and wait for another.
+  // Does not run any further code within handleClick
   if (y === null) {
     return;
   }
 
-
+  // only run this code if y is not null. We don't want to be putting pieces in a spot that doesn't exist!
   if (y !== null) {
     // place piece in board and add to HTML table
     placeInTable(y, x);
